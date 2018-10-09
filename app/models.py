@@ -7,7 +7,7 @@ class Users(db.Model):
     password = db.Column(db.String, nullable=False)
 
     def __repr__(self):
-        return '<Users %r>' % self.username
+        return '<Users %r>'.format(self.username)
 
 
 class Accounts(db.Model):
@@ -16,7 +16,7 @@ class Accounts(db.Model):
     value = db.Column(db.Integer)
 
     def __repr__(self):
-        return '<Accounts %r>' % self.owner
+        return '<Accounts %r>'.format(self.owner)
 
 
 class Log(db.Model):
@@ -27,4 +27,4 @@ class Log(db.Model):
     value = db.Column(db.Integer)
 
     def __repr__(self):
-        return 'Log %r' % self.donor
+        return 'Log %r'.format(self.donor)
