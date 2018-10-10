@@ -10,7 +10,7 @@ class Users(UserMixin, db.Model):
     password_hash = db.Column(db.String, nullable=False)
 
     def __repr__(self):
-        return '<Users %r>'.format(self.username)
+        return '<Users %r>' % self.username
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

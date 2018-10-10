@@ -1,5 +1,5 @@
 # здесь будут представления
-from app import app
+from app import app, db
 from flask_login import current_user, login_user
 from app.models import Users
 from flask import request
@@ -16,14 +16,27 @@ def index():
 @app.route('/login', methods=['POST'])
 def login():
     payload = request.get_json()
-    print(payload)
-    user = Users.query.filter_by(username=payload('username')).first()
-    if user is None:
-        return 'fuck'
-    elif Users.check_password(payload('password')):
-        return 'welcome'
+    user = Users.query.filter_by(username=payload['login']).first()
+    if user is None or not user.check_password(str(payload['password'])):
+        return 'Invalid username or password'
     else:
-        return 'badpass'
+        return 'welcome'
+
+
+
+# Создание нового пользователя
+@app.route('/register', methods=['POST'])
+def register():
+    payload = request.get_json()
+    if Users.query.filter_by(username=payload['login']).first() is None:
+        user = Users(username=payload['login'])
+        user.set_password(payload['password'])
+        db.session.add(user)
+        db.session.commit()
+        return 'Well done! U in!'
+    else:
+        return 'Not today bro((('
+
 
 
 
