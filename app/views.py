@@ -1,7 +1,7 @@
 # здесь будут представления
 from app import app, db
-from flask_login import current_user, login_user
-from app.models import Users
+from flask_login import login_user, logout_user, current_user, login_required
+from app.models import Users, Accounts
 from flask import request
 import json
 
@@ -19,8 +19,8 @@ def login():
     user = Users.query.filter_by(username=payload['login']).first()
     if user is None or not user.check_password(str(payload['password'])):
         return 'Invalid username or password'
-    else:
-        return 'welcome'
+    login_user(user)
+    return 'welcome'
 
 
 
@@ -38,8 +38,20 @@ def register():
         return 'Not today bro((('
 
 
+# Окончание сеанса
+@app.route('/logout')
+@login_required
+def logout():
+    user = current_user
+    user.authenticated = False
+    logout_user()
+    return 'goodbye'
 
 
-# # запрос операций по счетам пользователя
-# @app.route('/my-history/<username>')
-# def my_history(username):
+# запрос операций по счетам пользователя
+@app.route('/accounts/<username>')
+@login_required
+def accounts(username):
+    accounts = Accounts.query.filter_by(username=username)
+    return accounts
+
