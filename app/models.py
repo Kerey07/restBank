@@ -9,10 +9,10 @@ class Users(UserMixin, db.Model):
     userID = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, index=True, unique=True, nullable=False)
     password_hash = db.Column(db.String, nullable=False)
-    accounts = db.relationship("Accounts", backref='owner')
+    accounts = db.relationship("Accounts")
 
     def __repr__(self):
-        return '<Users %r>' % self.username
+        return '<Users {}>'.format(self.username)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -37,13 +37,13 @@ class Accounts(db.Model):
     operations = db.relationship("Log")
 
     def __repr__(self):
-        return '<Accounts %r>'.format(self.owner)
+        return '<Accounts {}>'.format(self.body)
 
 
 class Log(db.Model):
     operationID = db.Column(db.Integer, primary_key=True)
     donor = db.Column(db.Integer, db.ForeignKey("Accounts.accountID"))
-    recipient = db.Column(db.Integer, db.ForeignKey("Accounts.accountID"))
+    recipient = db.Column(db.Integer)
     type = db.Column(db.String)
     value = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)

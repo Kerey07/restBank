@@ -2,7 +2,7 @@
 from app import app, db
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import Users, Accounts
-from flask import request
+from flask import request, jsonify
 import json
 
 
@@ -49,9 +49,12 @@ def logout():
 
 
 # запрос операций по счетам пользователя
-@app.route('/accounts/<username>')
+@app.route('/accounts')
 @login_required
-def accounts(username):
-    accounts = Accounts.query.filter_by(username=username)
+def accounts():
+    user = Users.query.filter_by(username=current_user).first_or_404()
+    accounts = user.accounts.order_by(Accounts.accountID())
+    print(user)
+    print(accounts)
     return accounts
 
