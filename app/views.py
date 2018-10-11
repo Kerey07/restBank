@@ -52,9 +52,5 @@ def logout():
 @app.route('/accounts')
 @login_required
 def accounts():
-    user = Users.query.filter_by(username=current_user).first_or_404()
-    accounts = user.accounts.order_by(Accounts.accountID())
-    print(user)
-    print(accounts)
-    return accounts
+    return str(current_user.accounts)
 
