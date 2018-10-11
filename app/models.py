@@ -37,7 +37,7 @@ class Accounts(db.Model):
     operations = db.relationship("Log")
 
     def __repr__(self):
-        return '(Number:"{}", Value:"{}")'.format(self.accountID, self.value)
+        return '({},{})'.format(self.accountID, self.value)
 
 
 class Log(db.Model):

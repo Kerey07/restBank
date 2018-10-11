@@ -52,5 +52,9 @@ def logout():
 @app.route('/accounts')
 @login_required
 def accounts():
+    string = str(current_user.accounts)
+    print(string)
+    dic = json.loads(string)
+    print(dic)
     return str(current_user.accounts)
 
