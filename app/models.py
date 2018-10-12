@@ -11,6 +11,8 @@ class Users(UserMixin, db.Model):
     username = db.Column(db.String, index=True, unique=True, nullable=False)
     password_hash = db.Column(db.String, nullable=False)
     accounts = db.relationship("Accounts")
+    history = db.relationship("Log")
+
 
     def __repr__(self):
         return '<Users {}>'.format(self.username)
@@ -43,14 +45,15 @@ class Accounts(db.Model):
 
 class Log(db.Model):
     operationID = db.Column(db.Integer, primary_key=True)
-    donor = db.Column(db.Integer, db.ForeignKey("Accounts.accountID"))
+    account_owner = db.Column(db.Integer, db.ForeignKey("Users.userID"))
+    account = db.Column(db.Integer, db.ForeignKey("Accounts.accountID"))
     recipient = db.Column(db.Integer)
     type = db.Column(db.String)
     value = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     def __repr__(self):
-        return 'Log {}'.format(self.donor)
+        return 'Log {}'.format(self.account)
 
 
 class UsersSchema(ma.Schema):
@@ -65,4 +68,4 @@ class AccountsSchema(ma.Schema):
 
 class LogSchema(ma.Schema):
     class Meta:
-        fields = ('donor', 'value')
+        fields = ('account', 'value')

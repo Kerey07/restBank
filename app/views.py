@@ -76,7 +76,7 @@ def operations():
             # пополнение
             new_user_acc_value = int(user_account.value) + int(operation_value)
             user_account.value = new_user_acc_value
-            log = Log(donor=user_account_id,type= operation_type,value= operation_value)
+            log = Log(account_owner=current_user.userID, account=user_account_id,type= operation_type,value= operation_value)
             db.session.add(log)
             db.session.commit()
             return str(user_account.value)
@@ -85,7 +85,7 @@ def operations():
             new_user_acc_value = int(user_account.value) - int(operation_value)
             user_account.value = new_user_acc_value
             db.session.commit()
-            log = Log(donor=user_account_id, type=operation_type, value=operation_value)
+            log = Log(account_owner=current_user.userID, account=user_account_id, type=operation_type, value=operation_value)
             db.session.add(log)
             return str(user_account.value)
         elif operation_type == 'TRANSFER':
@@ -96,7 +96,7 @@ def operations():
             recipient_account = Accounts.query.filter_by(accountID=recipient_account_id).first()
             new_recip_acc_value = int(recipient_account.value) + int(operation_value)
             recipient_account.value = new_recip_acc_value
-            log = Log(donor=user_account_id, type=operation_type, value=operation_value, recipient= recipient_account_id)
+            log = Log(account_owner=current_user.userID, account=user_account_id, type=operation_type, value=operation_value, recipient= recipient_account_id)
             db.session.add(log)
             db.session.commit()
             answer = {'donor_account':(user_account.value), 'recipient_account':(recipient_account.value)}
@@ -105,17 +105,16 @@ def operations():
             # создание нового счета
             new_account = Accounts(ownerID=current_user.userID, value=operation_value)
             db.session.add(new_account)
-            log = Log(donor=user_account_id, type=operation_type, value=operation_value)
+            log = Log(account_owner=current_user.userID, account=user_account_id, type=operation_type, value=operation_value)
             db.session.add(log)
             db.session.commit()
             return 'Account created'
 
 
-# @app.route('/history', methods=['POST'])
-# @login_required
-# def hisrory():
-#     payload = request.get_json()
-#     account = payload['accountID']
-#     log_schema = LogSchema(many=True)
-#     account_history = log_schema.dump(account)
-#     return jsonify(account_history)
+@app.route('/history', methods=['POST'])
+@login_required
+def hisrory():
+    log_schema = LogSchema(many=True)
+    user = current_user.history
+    account_history = log_schema.dump(user)
+    return jsonify(account_history)
