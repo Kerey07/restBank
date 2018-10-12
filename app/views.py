@@ -1,7 +1,7 @@
 # здесь будут представления
-from app import app, db
+from app import app, db, ma
 from flask_login import login_user, logout_user, current_user, login_required
-from app.models import Users, Accounts
+from app.models import Users, Accounts, AccountsSchema, UsersSchema
 from flask import request, jsonify
 import json
 
@@ -52,9 +52,9 @@ def logout():
 @app.route('/accounts')
 @login_required
 def accounts():
-    string = str(current_user.accounts)
-    print(string)
-    dic = json.loads(string)
-    print(dic)
-    return str(current_user.accounts)
+    account_schema = AccountsSchema(many=True)
+    user = current_user.accounts
+    accounts_result = account_schema.dump(user)
+    return jsonify(accounts_result)
+
 
