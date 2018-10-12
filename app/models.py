@@ -38,7 +38,7 @@ class Accounts(db.Model):
     operations = db.relationship("Log")
 
     def __repr__(self):
-        return '({},{})'.format(self.accountID, self.value)
+        return '{}'.format(self.value)
 
 
 class Log(db.Model):
@@ -50,7 +50,7 @@ class Log(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     def __repr__(self):
-        return 'Log %r'.format(self.donor)
+        return 'Log {}'.format(self.donor)
 
 
 class UsersSchema(ma.Schema):
@@ -62,3 +62,7 @@ class AccountsSchema(ma.Schema):
     class Meta:
         fields = ('accountID', 'value')
 
+
+class LogSchema(ma.Schema):
+    class Meta:
+        fields = ('donor', 'value')

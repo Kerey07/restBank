@@ -1,9 +1,9 @@
 # здесь будут представления
-from app import app, db, ma
+from app import app, db
 from flask_login import login_user, logout_user, current_user, login_required
-from app.models import Users, Accounts, AccountsSchema, UsersSchema
+from app.models import Users, AccountsSchema, Accounts, LogSchema, Log
 from flask import request, jsonify
-import json
+
 
 
 @app.route('/')
@@ -58,3 +58,64 @@ def accounts():
     return jsonify(accounts_result)
 
 
+# проведение операций
+@app.route('/operations', methods=['POST', 'GET'])
+@login_required
+def operations():
+    if request.method == 'GET':
+        operations_list = {'operation_name': ['PURCHASE', 'TRANSFER', 'WITHDRAWAL','CREATE']}
+        return jsonify(operations_list)
+    else:
+        # разбираем прилетевший джейсон
+        payload = request.get_json()
+        operation_type = payload['operation_type']
+        operation_value = payload['value']
+        user_account_id = payload['user_account']
+        user_account = Accounts.query.filter_by(accountID=user_account_id).first()
+        if operation_type == 'PURCHASE':
+            # пополнение
+            new_user_acc_value = int(user_account.value) + int(operation_value)
+            user_account.value = new_user_acc_value
+            log = Log(donor=user_account_id,type= operation_type,value= operation_value)
+            db.session.add(log)
+            db.session.commit()
+            return str(user_account.value)
+        elif operation_type == 'WITHDRAWAL':
+            # списание
+            new_user_acc_value = int(user_account.value) - int(operation_value)
+            user_account.value = new_user_acc_value
+            db.session.commit()
+            log = Log(donor=user_account_id, type=operation_type, value=operation_value)
+            db.session.add(log)
+            return str(user_account.value)
+        elif operation_type == 'TRANSFER':
+            # перевод между счетами
+            new_user_acc_value = int(user_account.value) - int(operation_value)
+            user_account.value = new_user_acc_value
+            recipient_account_id = payload['recipient_account']
+            recipient_account = Accounts.query.filter_by(accountID=recipient_account_id).first()
+            new_recip_acc_value = int(recipient_account.value) + int(operation_value)
+            recipient_account.value = new_recip_acc_value
+            log = Log(donor=user_account_id, type=operation_type, value=operation_value, recipient= recipient_account_id)
+            db.session.add(log)
+            db.session.commit()
+            answer = {'donor_account':(user_account.value), 'recipient_account':(recipient_account.value)}
+            return jsonify(answer)
+        else:
+            # создание нового счета
+            new_account = Accounts(ownerID=current_user.userID, value=operation_value)
+            db.session.add(new_account)
+            log = Log(donor=user_account_id, type=operation_type, value=operation_value)
+            db.session.add(log)
+            db.session.commit()
+            return 'Account created'
+
+
+# @app.route('/history', methods=['POST'])
+# @login_required
+# def hisrory():
+#     payload = request.get_json()
+#     account = payload['accountID']
+#     log_schema = LogSchema(many=True)
+#     account_history = log_schema.dump(account)
+#     return jsonify(account_history)
