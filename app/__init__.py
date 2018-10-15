@@ -4,8 +4,10 @@ from flask_sqlalchemy import SQLAlchemy
 from config import Config
 from flask_login import LoginManager
 from flask_marshmallow import Marshmallow
-# import logging
-# logging.basicConfig(filename='flask.log', level=logging.DEBUG)
+import logging
+
+
+logging.basicConfig(filename='flask.log', level=logging.DEBUG, filemode='w')
 
 
 app = Flask(__name__)

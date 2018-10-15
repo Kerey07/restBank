@@ -2,7 +2,7 @@
 from app import app, db
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import Users, AccountsSchema, Accounts, LogSchema, Log
-from flask import request, jsonify
+from flask import request, jsonify, abort
 
 
 
@@ -35,7 +35,7 @@ def register():
         db.session.commit()
         return 'Well done! U in!'
     else:
-        return 'Not today bro((('
+        return abort(409, 'User already exists')  # Возвращаем ошибку
 
 
 # Окончание сеанса
