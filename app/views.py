@@ -2,7 +2,7 @@
 from app import app, db
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import Users, AccountsSchema, Accounts, LogSchema, Log
-from flask import request, jsonify, abort
+from flask import request, jsonify, abort, make_response
 
 
 
@@ -18,9 +18,9 @@ def login():
     payload = request.get_json()
     user = Users.query.filter_by(username=payload['login']).first()
     if user is None or not user.check_password(str(payload['password'])):
-        return 'Invalid username or password'
+        return response(401, 'Invalid username or password')
     login_user(user)
-    return 'welcome'
+    return response(200, 'Welcome, {}'.format(user.username))
 
 
 
@@ -33,9 +33,9 @@ def register():
         user.set_password(payload['password'])
         db.session.add(user)
         db.session.commit()
-        return 'Well done! U in!'
+        return response(200, 'New user created')
     else:
-        return abort(409, 'User already exists')  # Возвращаем ошибку
+        return response(409, 'User already exist')  # Возвращаем ошибку
 
 
 # Окончание сеанса
@@ -45,7 +45,7 @@ def logout():
     user = current_user
     user.authenticated = False
     logout_user()
-    return 'goodbye'
+    return response(200, 'Goodbye')
 
 
 # запрос операций по счетам пользователя
@@ -79,7 +79,7 @@ def operations():
             log = Log(account_owner=current_user.userID, account=user_account_id,type= operation_type,value= operation_value)
             db.session.add(log)
             db.session.commit()
-            return str(user_account.value)
+            return response(200, 'Your balance = {}'.format(user_account.value))
         elif operation_type == 'WITHDRAWAL':
             # списание
             new_user_acc_value = int(user_account.value) - int(operation_value)
@@ -87,7 +87,7 @@ def operations():
             db.session.commit()
             log = Log(account_owner=current_user.userID, account=user_account_id, type=operation_type, value=operation_value)
             db.session.add(log)
-            return str(user_account.value)
+            return response(200, 'Your balance = {}'.format(user_account.value))
         elif operation_type == 'TRANSFER':
             # перевод между счетами
             new_user_acc_value = int(user_account.value) - int(operation_value)
@@ -99,8 +99,7 @@ def operations():
             log = Log(account_owner=current_user.userID, account=user_account_id, type=operation_type, value=operation_value, recipient= recipient_account_id)
             db.session.add(log)
             db.session.commit()
-            answer = {'donor_account':(user_account.value), 'recipient_account':(recipient_account.value)}
-            return jsonify(answer)
+            return response(200, 'Your balance = {}. Target account: {}'.format(user_account.value, recipient_account.accountID))
         else:
             # создание нового счета
             new_account = Accounts(ownerID=current_user.userID, value=operation_value)
@@ -108,13 +107,18 @@ def operations():
             log = Log(account_owner=current_user.userID, account=user_account_id, type=operation_type, value=operation_value)
             db.session.add(log)
             db.session.commit()
-            return 'Account created'
+            payload = Accounts.query.filter_by(ownerID=current_user.userID).order_by(Accounts.accountID.desc()).first()
+            return response(200, 'Account {} created.\nYour balance = {}'.format(payload.accountID, payload.value))
 
 
 @app.route('/history', methods=['POST'])
 @login_required
-def hisrory():
+def history():
     log_schema = LogSchema(many=True)
     user = current_user.history
     account_history = log_schema.dump(user)
     return jsonify(account_history)
+
+def response(code, message):
+    payload = jsonify(message=message)
+    return make_response(payload, code)

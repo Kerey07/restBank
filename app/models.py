@@ -68,4 +68,4 @@ class AccountsSchema(ma.Schema):
 
 class LogSchema(ma.Schema):
     class Meta:
-        fields = ('account', 'value')
+        fields = ('account', 'type', 'value', 'recipient', 'timestamp')
