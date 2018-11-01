@@ -2,7 +2,7 @@ from app import db, login, ma
 from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from marshmallow import fields
+
 
 
 class Users(UserMixin, db.Model):
@@ -61,9 +61,10 @@ class UsersSchema(ma.Schema):
         fields = ('userID', 'username')
 
 
-class AccountsSchema(ma.Schema):
+class AccountsSchema(ma.ModelSchema):
     class Meta:
         fields = ('accountID', 'value')
+
 
 
 class LogSchema(ma.Schema):

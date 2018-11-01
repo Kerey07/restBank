@@ -54,8 +54,8 @@ def logout():
 def accounts():
     account_schema = AccountsSchema(many=True)
     user = current_user.accounts
-    accounts_result = account_schema.dump(user)
-    return jsonify(accounts_result)
+    data, errors = account_schema.dump(user)
+    return jsonify(data)
 
 
 # проведение операций
@@ -116,8 +116,8 @@ def operations():
 def history():
     log_schema = LogSchema(many=True)
     user = current_user.history
-    account_history = log_schema.dump(user)
-    return jsonify(account_history)
+    data, errors = log_schema.dump(user)
+    return jsonify(data)
 
 def response(code, message):
     payload = jsonify(message=message)
