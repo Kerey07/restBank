@@ -1,8 +1,9 @@
-from app import db, login, ma
 from datetime import datetime
+
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from app import db, login, ma
 
 
 class Users(UserMixin, db.Model):
@@ -12,7 +13,6 @@ class Users(UserMixin, db.Model):
     password_hash = db.Column(db.String, nullable=False)
     accounts = db.relationship("Accounts")
     history = db.relationship("Log")
-
 
     def __repr__(self):
         return '<Users {}>'.format(self.username)
@@ -64,7 +64,6 @@ class UsersSchema(ma.Schema):
 class AccountsSchema(ma.ModelSchema):
     class Meta:
         fields = ('accountID', 'value')
-
 
 
 class LogSchema(ma.Schema):
