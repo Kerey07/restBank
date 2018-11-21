@@ -107,11 +107,11 @@ def operations():
             # создание нового счета
             new_account = Accounts(ownerID=current_user.userID, value=operation_value)
             db.session.add(new_account)
-            log = Log(account_owner=current_user.userID, account=user_account_id, type=operation_type,
+            payload = Accounts.query.filter_by(ownerID=current_user.userID).order_by(Accounts.accountID.desc()).first()
+            log = Log(account_owner=current_user.userID, account=payload.accountID, type=operation_type,
                       value=operation_value)
             db.session.add(log)
             db.session.commit()
-            payload = Accounts.query.filter_by(ownerID=current_user.userID).order_by(Accounts.accountID.desc()).first()
             return response(200, 'Account {} created.\nYour balance = {}'.format(payload.accountID, payload.value))
 
 
