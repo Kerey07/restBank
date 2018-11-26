@@ -34,7 +34,7 @@ def register():
         db.session.commit()
         return response(200, 'New user created')
     else:
-        return response(409, 'User already exist')  # Возвращаем ошибку
+        return response(409, 'Логин занят.')  # Возвращаем ошибку
 
 
 # Окончание сеанса
@@ -69,40 +69,53 @@ def operations():
         payload = request.get_json()
         operation_type = payload['operation_type']
         operation_value = payload['value']
-        user_account_id = payload['user_account']
-        user_account = Accounts.query.filter_by(accountID=user_account_id).first()
         if operation_type == 'PURCHASE':
             # пополнение
-            new_user_acc_value = int(user_account.value) + int(operation_value)
-            user_account.value = new_user_acc_value
-            log = Log(account_owner=current_user.userID, account=user_account_id, type=operation_type,
-                      value=operation_value)
-            db.session.add(log)
-            db.session.commit()
-            return response(200, 'Your balance = {}'.format(user_account.value))
+            user_account_id = payload['user_account']
+            user_account = Accounts.query.filter_by(accountID=user_account_id).first()
+            if user_account is None:
+                return response(500, 'Счет {} не существует.'.format(user_account_id))
+            else:
+                new_user_acc_value = int(user_account.value) + int(operation_value)
+                user_account.value = new_user_acc_value
+                log = Log(account_owner=current_user.userID, account=user_account_id, type=operation_type,
+                          value=operation_value)
+                db.session.add(log)
+                db.session.commit()
+                return response(200, 'Your balance = {}'.format(user_account.value))
         elif operation_type == 'WITHDRAWAL':
             # списание
-            new_user_acc_value = int(user_account.value) - int(operation_value)
-            user_account.value = new_user_acc_value
-            db.session.commit()
-            log = Log(account_owner=current_user.userID, account=user_account_id, type=operation_type,
-                      value=operation_value)
-            db.session.add(log)
-            return response(200, 'Your balance = {}'.format(user_account.value))
+            user_account_id = payload['user_account']
+            user_account = Accounts.query.filter_by(accountID=user_account_id).first()
+            if user_account is None:
+                return response(500, 'Счет {} не существует.'.format(user_account_id))
+            else:
+                new_user_acc_value = int(user_account.value) - int(operation_value)
+                user_account.value = new_user_acc_value
+                db.session.commit()
+                log = Log(account_owner=current_user.userID, account=user_account_id, type=operation_type,
+                          value=operation_value)
+                db.session.add(log)
+                return response(200, 'Ваш баланс = {}'.format(user_account.value))
         elif operation_type == 'TRANSFER':
             # перевод между счетами
+            user_account_id = payload['user_account']
+            user_account = Accounts.query.filter_by(accountID=user_account_id).first()
             new_user_acc_value = int(user_account.value) - int(operation_value)
             user_account.value = new_user_acc_value
             recipient_account_id = payload['recipient_account']
             recipient_account = Accounts.query.filter_by(accountID=recipient_account_id).first()
-            new_recip_acc_value = int(recipient_account.value) + int(operation_value)
-            recipient_account.value = new_recip_acc_value
-            log = Log(account_owner=current_user.userID, account=user_account_id, type=operation_type,
-                      value=operation_value, recipient=recipient_account_id)
-            db.session.add(log)
-            db.session.commit()
-            return response(200, 'Your balance = {}. Target account: {}'.format(user_account.value,
-                                                                                recipient_account.accountID))
+            if recipient_account is None:
+                return response(500, 'Счет {} не существует.'.format(recipient_account_id))
+            else:
+                new_recip_acc_value = int(recipient_account.value) + int(operation_value)
+                recipient_account.value = new_recip_acc_value
+                log = Log(account_owner=current_user.userID, account=user_account_id, type=operation_type,
+                          value=operation_value, recipient=recipient_account_id)
+                db.session.add(log)
+                db.session.commit()
+                return response(200, 'Ваш баланс = {}.\nЦелевой счет: {}'.format(user_account.value,
+                                                                                    recipient_account.accountID))
         else:
             # создание нового счета
             new_account = Accounts(ownerID=current_user.userID, value=operation_value)
@@ -112,7 +125,7 @@ def operations():
                       value=operation_value)
             db.session.add(log)
             db.session.commit()
-            return response(200, 'Account {} created.\nYour balance = {}'.format(payload.accountID, payload.value))
+            return response(200, 'Счет {} создан.\nВаш баланс = {}'.format(payload.accountID, payload.value))
 
 
 @app.route('/history', methods=['GET'])
