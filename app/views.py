@@ -116,7 +116,7 @@ def operations():
                 db.session.commit()
                 return response(200, 'Ваш баланс = {}.\nЦелевой счет: {}'.format(user_account.value,
                                                                                     recipient_account.accountID))
-        else:
+        elif operation_type == 'CREATE':
             # создание нового счета
             new_account = Accounts(ownerID=current_user.userID, value=operation_value)
             db.session.add(new_account)
