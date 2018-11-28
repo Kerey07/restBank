@@ -1,7 +1,9 @@
 WARNING:werkzeug: * Debugger is active!
 INFO:werkzeug: * Debugger PIN: 251-765-421
 INFO:werkzeug: * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
-INFO:werkzeug:127.0.0.1 - - [27/Nov/2018 19:13:32] "POST /operations HTTP/1.1" 500 -
-INFO:werkzeug:127.0.0.1 - - [27/Nov/2018 19:25:47] "GET /history HTTP/1.1" 200 -
-INFO:werkzeug:127.0.0.1 - - [27/Nov/2018 19:26:20] "POST /login HTTP/1.1" 200 -
-INFO:werkzeug:127.0.0.1 - - [27/Nov/2018 19:26:21] "GET /history HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [28/Nov/2018 10:08:34] "POST /operations HTTP/1.1" 500 -
+INFO:werkzeug:127.0.0.1 - - [28/Nov/2018 10:08:43] "POST /operations HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [28/Nov/2018 10:08:57] "POST /operations HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [28/Nov/2018 10:09:17] "POST /operations HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [28/Nov/2018 10:09:25] "GET /history HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [28/Nov/2018 10:09:33] "GET /logout HTTP/1.1" 401 -
